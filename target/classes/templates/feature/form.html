@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Feature — DevTrack</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a th:href="@{/}" class="nav-brand">⬡ DevTrack</a>
+    <div class="nav-links">
+        <a th:href="@{/projects}">Projects</a>
+        <form th:action="@{/logout}" method="post" style="display:inline">
+            <button type="submit" class="btn-link">Sign out</button>
+        </form>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="breadcrumb">
+        <a th:href="@{/projects}">Projects</a> /
+        <a th:href="@{/projects/{id}(id=${project.id})}" th:text="${project.name}">Project</a> /
+        <span th:text="${feature.id != null ? 'Edit Feature' : 'New Feature'}">Feature</span>
+    </div>
+
+    <h1 th:text="${feature.id != null ? 'Edit Feature' : 'Add Feature'}">Feature</h1>
+
+    <div class="import-section">
+        <details>
+            <summary class="import-toggle">Import from CSV / Excel</summary>
+            <div class="import-card">
+                <p class="import-hint">Upload a <code>.csv</code> or <code>.xlsx</code> file with columns:
+                    <strong>title</strong> (required), <strong>description</strong>, <strong>status</strong>.</p>
+                <form th:action="@{/projects/{id}/features/import(id=${project.id})}"
+                      method="post" enctype="multipart/form-data" class="import-form">
+                    <div class="field import-field">
+                        <label for="file">Choose file</label>
+                        <input type="file" id="file" name="file" accept=".csv,.xlsx" required/>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Import</button>
+                </form>
+            </div>
+        </details>
+    </div>
+
+    <form th:action="@{/projects/{id}/features/save(id=${project.id})}"
+          th:object="${feature}" method="post" class="form-card">
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="field">
+            <label for="title">Feature Title *</label>
+            <input type="text" id="title" th:field="*{title}" placeholder="e.g. User authentication"/>
+            <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="field-error"/>
+        </div>
+
+        <div class="field">
+            <label for="description">Description</label>
+            <textarea id="description" th:field="*{description}" rows="3"
+                      placeholder="More details about this feature…"></textarea>
+        </div>
+
+        <div class="field">
+            <label for="status">Status</label>
+            <select id="status" th:field="*{status}">
+                <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}">Status</option>
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <a th:href="@{/projects/{id}(id=${project.id})}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary"
+                    th:text="${feature.id != null ? 'Save Changes' : 'Add Feature'}">Save</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>

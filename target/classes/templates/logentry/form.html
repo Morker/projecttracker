@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Log Entry — DevTrack</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a th:href="@{/}" class="nav-brand">⬡ DevTrack</a>
+    <div class="nav-links">
+        <a th:href="@{/projects}">Projects</a>
+        <form th:action="@{/logout}" method="post" style="display:inline">
+            <button type="submit" class="btn-link">Sign out</button>
+        </form>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="breadcrumb">
+        <a th:href="@{/projects}">Projects</a> /
+        <a th:href="@{/projects/{id}(id=${project.id})}" th:text="${project.name}">Project</a> /
+        New Log Entry
+    </div>
+
+    <h1>Add Log Entry</h1>
+    <p class="form-hint">What did you work on? What did you learn? What's next?</p>
+
+    <form th:action="@{/projects/{id}/logs/save(id=${project.id})}"
+          th:object="${logEntry}" method="post" class="form-card">
+
+        <div class="field">
+            <label for="entryDate">Date</label>
+            <input type="date" id="entryDate" th:field="*{entryDate}"/>
+        </div>
+
+        <div class="field">
+            <label for="note">Note *</label>
+            <textarea id="note" th:field="*{note}" rows="5"
+                      placeholder="e.g. Set up Flyway migrations and created initial schema. Fixed N+1 query issue in project list."></textarea>
+            <span th:if="${#fields.hasErrors('note')}" th:errors="*{note}" class="field-error"/>
+        </div>
+
+        <div class="form-actions">
+            <a th:href="@{/projects/{id}(id=${project.id})}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Entry</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>

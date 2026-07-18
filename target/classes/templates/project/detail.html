@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${project.name + ' — DevTrack'}">Project — DevTrack</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a th:href="@{/}" class="nav-brand">⬡ DevTrack</a>
+    <div class="nav-links">
+        <a th:href="@{/projects}" class="active">Projects</a>
+        <form th:action="@{/logout}" method="post" style="display:inline">
+            <button type="submit" class="btn-link">Sign out</button>
+        </form>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="breadcrumb">
+        <a th:href="@{/projects}">Projects</a> / <span th:text="${project.name}">Project</span>
+    </div>
+
+    <div th:if="${importSuccess}" class="alert alert-success" th:text="${importSuccess}"></div>
+    <div th:if="${importError}" class="alert alert-error" th:text="${importError}"></div>
+
+    <!-- Project header -->
+    <div class="project-header">
+        <div>
+            <h1 th:text="${project.name}">Project Name</h1>
+            <div class="project-meta">
+                <span class="badge" th:classappend="'badge-' + ${project.status.name().toLowerCase()}"
+                      th:text="${project.status.label}">Status</span>
+                <span th:each="t : ${project.techStackList}" class="tag" th:text="${t}">tag</span>
+            </div>
+        </div>
+        <div class="project-actions">
+            <a th:if="${project.repoUrl != null and !project.repoUrl.isBlank()}"
+               th:href="${project.repoUrl}" target="_blank" class="btn btn-secondary">⎇ Repo</a>
+            <a th:if="${project.demoUrl != null and !project.demoUrl.isBlank()}"
+               th:href="${project.demoUrl}" target="_blank" class="btn btn-secondary">↗ Demo</a>
+            <a th:href="@{/projects/{id}/edit(id=${project.id})}" class="btn btn-secondary">Edit</a>
+            <form th:action="@{/projects/{id}/delete(id=${project.id})}" method="post"
+                  onsubmit="return confirm('Delete this project and all its data?')">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <p th:if="${project.description != null}" class="project-description" th:text="${project.description}">desc</p>
+
+    <div class="detail-grid">
+
+        <!-- Features -->
+        <section class="card">
+            <div class="section-header">
+                <h2>Features</h2>
+                <a th:href="@{/projects/{id}/features/new(id=${project.id})}" class="btn btn-sm">+ Add</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(project.features)}" class="empty-state">
+                <p>No features tracked yet.</p>
+            </div>
+
+            <ul class="feature-list" th:unless="${#lists.isEmpty(project.features)}">
+                <li th:each="f : ${project.features}" class="feature-item"
+                    th:classappend="${f.status.name() == 'DONE'} ? 'done'">
+                    <div class="feature-main">
+                        <form th:action="@{/projects/{pid}/features/{fid}/toggle(pid=${project.id},fid=${f.id})}"
+                              method="post" style="display:inline">
+                            <button type="submit" class="toggle-btn"
+                                    th:text="${f.status.name() == 'DONE'} ? '✓' : '○'">○</button>
+                        </form>
+                        <div>
+                            <span class="feature-title" th:text="${f.title}">Feature</span>
+                            <span th:if="${f.description != null}" class="feature-desc" th:text="${f.description}">desc</span>
+                        </div>
+                    </div>
+                    <div class="feature-right">
+                        <span class="badge badge-sm"
+                              th:classappend="'badge-' + ${f.status.name().toLowerCase()}"
+                              th:text="${f.status.label}">status</span>
+                        <a th:href="@{/projects/{pid}/features/{fid}/edit(pid=${project.id},fid=${f.id})}" class="link-small">Edit</a>
+                        <form th:action="@{/projects/{pid}/features/{fid}/delete(pid=${project.id},fid=${f.id})}"
+                              method="post" style="display:inline">
+                            <button type="submit" class="btn-icon" title="Delete">✕</button>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Dev Log -->
+        <section class="card">
+            <div class="section-header">
+                <h2>Dev Log</h2>
+                <a th:href="@{/projects/{id}/logs/new(id=${project.id})}" class="btn btn-sm">+ Log entry</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(project.logEntries)}" class="empty-state">
+                <p>No log entries yet. Start documenting what you've done.</p>
+            </div>
+
+            <ul class="devlog-list" th:unless="${#lists.isEmpty(project.logEntries)}">
+                <li th:each="log : ${project.logEntries}" class="devlog-item">
+                    <span class="devlog-date" th:text="${#temporals.format(log.entryDate, 'dd MMM yyyy')}">date</span>
+                    <p class="devlog-note" th:text="${log.note}">note</p>
+                    <form th:action="@{/projects/{pid}/logs/{lid}/delete(pid=${project.id},lid=${log.id})}"
+                          method="post" style="display:inline">
+                        <button type="submit" class="btn-icon" title="Delete">✕</button>
+                    </form>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+    <p class="timestamps">
+        Created <span th:text="${#temporals.format(project.createdAt, 'dd MMM yyyy')}">date</span> ·
+        Updated <span th:text="${#temporals.format(project.updatedAt, 'dd MMM yyyy HH:mm')}">date</span>
+    </p>
+</main>
+</body>
+</html>
