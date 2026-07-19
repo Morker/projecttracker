@@ -20,4 +20,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> search(@Param("q") String query);
 
     long countByStatus(ProjectStatus status);
+
+    Optional<Project> findFirstByNameContainingIgnoreCaseOrderByNameAsc(String name);
 }

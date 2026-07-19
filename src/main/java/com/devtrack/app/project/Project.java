@@ -41,6 +41,9 @@ public class Project {
     @Column(name = "tech_stack", length = 500)
     private String techStack;
 
+    @Column(columnDefinition = "TEXT")
+    private String documentation;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

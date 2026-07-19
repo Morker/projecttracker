@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final MarkdownService markdownService;
 
     @GetMapping
     public String list(@RequestParam(required = false) String status,
@@ -70,5 +71,29 @@ public class ProjectController {
     public String delete(@PathVariable Long id) {
         projectService.delete(id);
         return "redirect:/projects";
+    }
+
+    @GetMapping("/{id}/docs")
+    public String docs(@PathVariable Long id, Model model) {
+        Project project = projectService.findById(id);
+        model.addAttribute("project", project);
+        model.addAttribute("docsHtml", markdownService.toHtml(project.getDocumentation()));
+        return "project/docs";
+    }
+
+    @GetMapping("/{id}/docs/edit")
+    public String docsEdit(@PathVariable Long id, Model model) {
+        model.addAttribute("project", projectService.findById(id));
+        return "project/docs-form";
+    }
+
+    @PostMapping("/{id}/docs/save")
+    public String docsSave(@PathVariable Long id,
+                           @RequestParam(required = false) String documentation,
+                           @AuthenticationPrincipal UserDetails user) {
+        Project project = projectService.findById(id);
+        project.setDocumentation(documentation);
+        projectService.save(project, user.getUsername());
+        return "redirect:/projects/" + id + "/docs";
     }
 }

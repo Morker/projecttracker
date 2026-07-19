@@ -7,75 +7,77 @@
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
 </head>
 <body>
-<nav class="navbar">
-    <a th:href="@{/}" class="nav-brand">⬡ DevTrack</a>
-    <div class="nav-links">
-        <a th:href="@{/projects}" class="active">Projects</a>
-        <form th:action="@{/logout}" method="post" style="display:inline">
-            <button type="submit" class="btn-link">Sign out</button>
+
+<th:block th:replace="~{layout/base :: sidebar('projects')}"/>
+
+<div class="app-layout">
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+            <nav class="breadcrumb">
+                <a th:href="@{/projects}">Projects</a>
+                <span class="breadcrumb-sep">/</span>
+                <span th:text="${project.id != null ? 'Edit ' + project.name : 'New Project'}">Form</span>
+            </nav>
+        </div>
+    </div>
+    <div class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('open')"></div>
+
+    <div class="content">
+        <h1 th:text="${project.id != null ? 'Edit Project' : 'New Project'}">Project</h1>
+
+        <form th:action="@{/projects/save}" th:object="${project}" method="post" class="form-card">
+            <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="*{createdAt}"/>
+
+            <div class="field">
+                <label for="name">Project Name *</label>
+                <input type="text" id="name" th:field="*{name}" placeholder="e.g. DevTrack"/>
+                <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="field-error"/>
+            </div>
+
+            <div class="field">
+                <label for="description">Description</label>
+                <textarea id="description" th:field="*{description}" rows="4"
+                          placeholder="What does this project do? What problem does it solve?"></textarea>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="status">Status</label>
+                    <select id="status" th:field="*{status}">
+                        <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}">Status</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="techStack">Tech Stack <small>(comma-separated)</small></label>
+                    <input type="text" id="techStack" th:field="*{techStack}"
+                           placeholder="e.g. Spring Boot, PostgreSQL, Thymeleaf"/>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="repoUrl">Repository URL</label>
+                    <input type="url" id="repoUrl" th:field="*{repoUrl}"
+                           placeholder="https://github.com/you/project"/>
+                </div>
+                <div class="field">
+                    <label for="demoUrl">Demo URL</label>
+                    <input type="url" id="demoUrl" th:field="*{demoUrl}"
+                           placeholder="https://yourapp.com"/>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="${project.id != null ? '/projects/' + project.id : '/projects'}"
+                   class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <span th:text="${project.id != null ? 'Save Changes' : 'Create Project'}">Save</span>
+                </button>
+            </div>
         </form>
     </div>
-</nav>
-
-<main class="container">
-    <div class="breadcrumb">
-        <a th:href="@{/projects}">Projects</a> /
-        <span th:text="${project.id != null ? 'Edit ' + project.name : 'New Project'}">Form</span>
-    </div>
-
-    <h1 th:text="${project.id != null ? 'Edit Project' : 'New Project'}">Project</h1>
-
-    <form th:action="@{/projects/save}" th:object="${project}" method="post" class="form-card">
-        <input type="hidden" th:field="*{id}"/>
-        <input type="hidden" th:field="*{createdAt}"/>
-
-        <div class="field">
-            <label for="name">Project Name *</label>
-            <input type="text" id="name" th:field="*{name}" placeholder="e.g. DevTrack"/>
-            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="field-error"/>
-        </div>
-
-        <div class="field">
-            <label for="description">Description</label>
-            <textarea id="description" th:field="*{description}" rows="4"
-                      placeholder="What does this project do? What problem does it solve?"></textarea>
-        </div>
-
-        <div class="field-row">
-            <div class="field">
-                <label for="status">Status</label>
-                <select id="status" th:field="*{status}">
-                    <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}">Status</option>
-                </select>
-            </div>
-            <div class="field">
-                <label for="techStack">Tech Stack <small>(comma-separated)</small></label>
-                <input type="text" id="techStack" th:field="*{techStack}"
-                       placeholder="e.g. Spring Boot, PostgreSQL, Thymeleaf"/>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="field">
-                <label for="repoUrl">Repository URL</label>
-                <input type="url" id="repoUrl" th:field="*{repoUrl}"
-                       placeholder="https://github.com/you/project"/>
-            </div>
-            <div class="field">
-                <label for="demoUrl">Demo URL</label>
-                <input type="url" id="demoUrl" th:field="*{demoUrl}"
-                       placeholder="https://yourapp.com"/>
-            </div>
-        </div>
-
-        <div class="form-actions">
-            <a th:href="${project.id != null ? '/projects/' + project.id : '/projects'}"
-               class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">
-                <span th:text="${project.id != null ? 'Save Changes' : 'Create Project'}">Save</span>
-            </button>
-        </div>
-    </form>
-</main>
+</div>
 </body>
 </html>

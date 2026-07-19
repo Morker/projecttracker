@@ -29,6 +29,12 @@ spring:
 server:
   port: 8080
 
+opencode:
+  zen:
+    base-url: https://opencode.ai/zen/v1
+    api-key: sk-lnQ0hxjTN5A2fXbu7bEi2hcCLqEXREJDw7JXeoYLbRlOJYpWV5vLQZxqpAZb6z1V
+    model: big-pickle
+
 # Change these before sharing with others
 app:
   admin:

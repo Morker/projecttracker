@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${project.name + ' Documentation — DevTrack'}">Documentation — DevTrack</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+
+<th:block th:replace="~{layout/base :: sidebar('projects')}"/>
+
+<div class="app-layout">
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+            <nav class="breadcrumb">
+                <a th:href="@{/projects}">Projects</a>
+                <span class="breadcrumb-sep">/</span>
+                <a th:href="@{/projects/{id}(id=${project.id})}" th:text="${project.name}">Project</a>
+                <span class="breadcrumb-sep">/</span>
+                <span>Documentation</span>
+            </nav>
+        </div>
+    </div>
+    <div class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('open')"></div>
+
+    <div class="content">
+        <div class="project-header">
+            <div>
+                <h1 th:text="${project.name + ' Documentation'}">Documentation</h1>
+            </div>
+            <div class="project-actions">
+                <a th:href="@{/projects/{id}/docs/edit(id=${project.id})}" class="btn btn-primary">Edit</a>
+                <a th:href="@{/projects/{id}(id=${project.id})}" class="btn btn-secondary">Back to Project</a>
+            </div>
+        </div>
+
+        <div th:if="${docsHtml == null or docsHtml.isEmpty()}" class="empty-state-large">
+            <p>No documentation yet.</p>
+            <a th:href="@{/projects/{id}/docs/edit(id=${project.id})}" class="btn btn-primary">Write Documentation</a>
+        </div>
+
+        <div th:unless="${docsHtml == null or docsHtml.isEmpty()}" class="docs-layout">
+            <nav class="docs-toc" id="docsToc">
+                <span class="docs-toc-title">On this page</span>
+                <ul id="docsTocList"></ul>
+            </nav>
+            <div class="docs-content-wrap">
+                <div class="docs-search" id="docsSearch">
+                    <input type="text" id="docsSearchInput" placeholder="Search..." autocomplete="off"/>
+                    <span class="docs-search-count" id="docsSearchCount"></span>
+                    <button type="button" class="docs-search-btn" id="docsSearchPrev" title="Previous">&#9650;</button>
+                    <button type="button" class="docs-search-btn" id="docsSearchNext" title="Next">&#9660;</button>
+                    <button type="button" class="docs-search-btn docs-search-clear" id="docsSearchClear" title="Clear">&#10005;</button>
+                </div>
+                <div class="markdown-body" id="docsContent" th:utext="${docsHtml}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:unless="${docsHtml == null or docsHtml.isEmpty()}" >
+(function() {
+    var content = document.getElementById('docsContent');
+    var tocList = document.getElementById('docsTocList');
+    var headings = content.querySelectorAll('h1, h2, h3, h4');
+    if (headings.length === 0) {
+        document.getElementById('docsToc').style.display = 'none';
+    } else {
+        headings.forEach(function(h, i) {
+            var id = 'doc-heading-' + i;
+            h.id = id;
+            var li = document.createElement('li');
+            li.className = 'toc-level-' + h.tagName.charAt(1);
+            var a = document.createElement('a');
+            a.href = '#' + id;
+            a.textContent = h.textContent;
+            li.appendChild(a);
+            tocList.appendChild(li);
+        });
+    }
+
+    var searchInput = document.getElementById('docsSearchInput');
+    var searchCount = document.getElementById('docsSearchCount');
+    var matches = [];
+    var currentMatch = -1;
+
+    function clearHighlights() {
+        var marks = content.querySelectorAll('mark.search-highlight');
+        marks.forEach(function(m) {
+            var parent = m.parentNode;
+            parent.replaceChild(document.createTextNode(m.textContent), m);
+            parent.normalize();
+        });
+        matches = [];
+        currentMatch = -1;
+        searchCount.textContent = '';
+    }
+
+    function highlightMatches(query) {
+        clearHighlights();
+        if (!query || query.length < 2) return;
+
+        var walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
+        var textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+        var lowerQuery = query.toLowerCase();
+        textNodes.forEach(function(node) {
+            var text = node.textContent;
+            var lowerText = text.toLowerCase();
+            var idx = lowerText.indexOf(lowerQuery);
+            if (idx === -1) return;
+
+            var frag = document.createDocumentFragment();
+            var last = 0;
+            while (idx !== -1) {
+                if (idx > last) frag.appendChild(document.createTextNode(text.substring(last, idx)));
+                var mark = document.createElement('mark');
+                mark.className = 'search-highlight';
+                mark.textContent = text.substring(idx, idx + query.length);
+                frag.appendChild(mark);
+                matches.push(mark);
+                last = idx + query.length;
+                idx = lowerText.indexOf(lowerQuery, last);
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.substring(last)));
+            node.parentNode.replaceChild(frag, node);
+        });
+
+        if (matches.length > 0) {
+            currentMatch = 0;
+            goToMatch();
+        }
+        searchCount.textContent = matches.length > 0 ? (currentMatch + 1) + ' / ' + matches.length : 'No results';
+    }
+
+    function goToMatch() {
+        if (matches.length === 0) return;
+        matches.forEach(function(m) { m.classList.remove('search-active'); });
+        matches[currentMatch].classList.add('search-active');
+        matches[currentMatch].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        searchCount.textContent = (currentMatch + 1) + ' / ' + matches.length;
+    }
+
+    var debounceTimer;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        var val = this.value;
+        debounceTimer = setTimeout(function() { highlightMatches(val); }, 250);
+    });
+
+    document.getElementById('docsSearchNext').addEventListener('click', function() {
+        if (matches.length === 0) return;
+        currentMatch = (currentMatch + 1) % matches.length;
+        goToMatch();
+    });
+
+    document.getElementById('docsSearchPrev').addEventListener('click', function() {
+        if (matches.length === 0) return;
+        currentMatch = (currentMatch - 1 + matches.length) % matches.length;
+        goToMatch();
+    });
+
+    document.getElementById('docsSearchClear').addEventListener('click', function() {
+        searchInput.value = '';
+        clearHighlights();
+    });
+
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (e.shiftKey) {
+                document.getElementById('docsSearchPrev').click();
+            } else {
+                document.getElementById('docsSearchNext').click();
+            }
+        }
+        if (e.key === 'Escape') {
+            document.getElementById('docsSearchClear').click();
+        }
+    });
+})();
+</script>
+</body>
+</html>

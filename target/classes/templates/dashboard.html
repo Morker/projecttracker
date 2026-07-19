@@ -8,84 +8,143 @@
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
 </head>
 <body>
-<nav class="navbar">
-    <a th:href="@{/}" class="nav-brand">⬡ DevTrack</a>
-    <div class="nav-links">
-        <a th:href="@{/projects}">Projects</a>
-        <form th:action="@{/logout}" method="post" style="display:inline">
-            <button type="submit" class="btn-link">Sign out</button>
-        </form>
-    </div>
-</nav>
 
-<main class="container">
-    <div class="page-header">
-        <h1>Dashboard</h1>
-        <a th:href="@{/projects/new}" class="btn btn-primary">+ New Project</a>
-    </div>
+<th:block th:replace="~{layout/base :: sidebar('dashboard')}"/>
 
-    <!-- Stats -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span class="stat-num" th:text="${stats.total}">0</span>
-            <span class="stat-label">Total Projects</span>
-        </div>
-        <div class="stat-card accent-blue">
-            <span class="stat-num" th:text="${stats.inProgress}">0</span>
-            <span class="stat-label">In Progress</span>
-        </div>
-        <div class="stat-card accent-green">
-            <span class="stat-num" th:text="${stats.done}">0</span>
-            <span class="stat-label">Completed</span>
-        </div>
-        <div class="stat-card accent-yellow">
-            <span class="stat-num" th:text="${stats.ideas}">0</span>
-            <span class="stat-label">Ideas</span>
+<div class="app-layout">
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+            <nav class="breadcrumb">
+                <span>Dashboard</span>
+            </nav>
         </div>
     </div>
+    <div class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('open')"></div>
 
-    <div class="two-col">
-        <!-- Recent projects -->
-        <section>
-            <div class="section-header">
-                <h2>Recent Projects</h2>
-                <a th:href="@{/projects}" class="link-small">View all →</a>
+    <div class="content">
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <a th:href="@{/projects/new}" class="btn btn-primary">+ New Project</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-num" th:text="${stats.total}">0</span>
+                <span class="stat-label">Total Projects</span>
             </div>
-            <div th:if="${#lists.isEmpty(recentProjects)}" class="empty-state">
-                <p>No projects yet. <a th:href="@{/projects/new}">Create your first one.</a></p>
+            <div class="stat-card accent-blue">
+                <span class="stat-num" th:text="${stats.inProgress}">0</span>
+                <span class="stat-label">In Progress</span>
             </div>
-            <div class="project-list" th:unless="${#lists.isEmpty(recentProjects)}">
-                <a th:each="p : ${recentProjects}"
-                   th:href="@{/projects/{id}(id=${p.id})}"
-                   class="project-row">
-                    <div>
-                        <span class="project-name" th:text="${p.name}">Project</span>
-                        <span th:each="t : ${p.techStackList}" class="tag" th:text="${t}">tag</span>
+            <div class="stat-card accent-green">
+                <span class="stat-num" th:text="${stats.done}">0</span>
+                <span class="stat-label">Completed</span>
+            </div>
+            <div class="stat-card accent-yellow">
+                <span class="stat-num" th:text="${stats.ideas}">0</span>
+                <span class="stat-label">Ideas</span>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <section>
+                <div class="section-header">
+                    <h2>Recent Projects</h2>
+                    <a th:href="@{/projects}" class="link-small">View all &rarr;</a>
+                </div>
+                <div th:if="${#lists.isEmpty(recentProjects)}" class="empty-state">
+                    <p>No projects yet. <a th:href="@{/projects/new}">Create your first one.</a></p>
+                </div>
+                <div class="project-list" th:unless="${#lists.isEmpty(recentProjects)}">
+                    <a th:each="p : ${recentProjects}"
+                       th:href="@{/projects/{id}(id=${p.id})}"
+                       class="project-row">
+                        <div>
+                            <span class="project-name" th:text="${p.name}">Project</span>
+                            <span th:each="t : ${p.techStackList}" class="tag" th:text="${t}">tag</span>
+                        </div>
+                        <span class="badge" th:classappend="'badge-' + ${p.status.name().toLowerCase()}"
+                              th:text="${p.status.label}">Status</span>
+                    </a>
+                </div>
+            </section>
+
+            <section>
+                <div class="section-header">
+                    <h2>Recent Logs</h2>
+                </div>
+                <div th:if="${#lists.isEmpty(recentLogs)}" class="empty-state">
+                    <p>No log entries yet. Start documenting your progress.</p>
+                </div>
+                <ul class="log-list" th:unless="${#lists.isEmpty(recentLogs)}">
+                    <li th:each="log : ${recentLogs}" class="log-item">
+                        <span class="log-date" th:text="${#temporals.format(log.entryDate, 'dd MMM')}">01 Jan</span>
+                        <span class="log-note" th:text="${log.note}">note</span>
+                        <a th:href="@{/projects/{id}(id=${log.project.id})}"
+                           class="log-project" th:text="${log.project.name}">project</a>
+                    </li>
+                </ul>
+            </section>
+        </div>
+
+        <div class="assistant-section">
+            <div class="assistant-header">
+                <h2>AI Assistant</h2>
+            </div>
+            <div class="assistant-card">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-msg bot">
+                        Hi! I can help you manage projects and features. Try saying "create a project called..."
                     </div>
-                    <span class="badge" th:classappend="'badge-' + ${p.status.name().toLowerCase()}"
-                          th:text="${p.status.label}">Status</span>
-                </a>
+                </div>
+                <form class="chat-form" id="chatForm">
+                    <input type="text" id="chatInput" class="search-input" placeholder="Ask me anything..." autocomplete="off"/>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </form>
             </div>
-        </section>
-
-        <!-- Recent dev logs -->
-        <section>
-            <div class="section-header">
-                <h2>Recent Logs</h2>
-            </div>
-            <div th:if="${#lists.isEmpty(recentLogs)}" class="empty-state">
-                <p>No log entries yet. Start documenting your progress.</p>
-            </div>
-            <ul class="log-list" th:unless="${#lists.isEmpty(recentLogs)}">
-                <li th:each="log : ${recentLogs}" class="log-item">
-                    <span class="log-date" th:text="${#temporals.format(log.entryDate, 'dd MMM')}">01 Jan</span>
-                    <span class="log-note" th:text="${log.note}">note</span>
-                    <a th:href="@{/projects/{id}(id=${log.project.id})}"
-                       class="log-project" th:text="${log.project.name}">project</a>
-                </li>
-            </ul>
-        </section>
+        </div>
     </div>
-</main>
+</div>
+
+<script>
+document.getElementById('chatForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const messages = document.getElementById('chatMessages');
+    messages.appendChild(createMsg(msg, 'user'));
+    input.value = '';
+
+    const loading = createMsg('Thinking...', 'bot loading');
+    messages.appendChild(loading);
+    messages.scrollTop = messages.scrollHeight;
+
+    try {
+        const res = await fetch('/api/assistant', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: msg})
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        loading.remove();
+        messages.appendChild(createMsg(data.reply, 'bot'));
+    } catch (err) {
+        loading.remove();
+        messages.appendChild(createMsg('Error: ' + err.message, 'bot error'));
+    }
+    messages.scrollTop = messages.scrollHeight;
+});
+
+function createMsg(text, cls) {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + cls;
+    div.textContent = text;
+    return div;
+}
+</script>
 </body>
 </html>

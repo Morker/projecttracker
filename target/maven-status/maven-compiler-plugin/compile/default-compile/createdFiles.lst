@@ -1,6 +1,7 @@
 com\devtrack\app\DevTrackApplication.class
 com\devtrack\app\feature\FeatureRepository.class
 com\devtrack\app\project\Project.class
+com\devtrack\app\ai\AssistantResponse.class
 com\devtrack\app\project\ProjectService$DashboardStats.class
 com\devtrack\app\logentry\LogEntry.class
 com\devtrack\app\project\ProjectRepository.class
@@ -10,13 +11,19 @@ com\devtrack\app\feature\Feature.class
 com\devtrack\app\feature\FeatureImportService$1.class
 com\devtrack\app\security\SecurityConfig.class
 com\devtrack\app\feature\FeatureImportService.class
+com\devtrack\app\project\MarkdownService.class
 com\devtrack\app\project\ProjectController.class
+com\devtrack\app\ai\AiController.class
+com\devtrack\app\ai\AssistantRequest.class
+com\devtrack\app\ai\AiTools.class
 com\devtrack\app\project\ProjectStatus.class
 com\devtrack\app\logentry\LogEntryRepository.class
 com\devtrack\app\logentry\LogEntryController.class
 com\devtrack\app\feature\FeatureStatus.class
 com\devtrack\app\feature\FeatureImportService$FeatureRow.class
+com\devtrack\app\project\MarkdownService$Heading.class
 com\devtrack\app\feature\FeatureController.class
+com\devtrack\app\ai\AiAssistantService.class
 com\devtrack\app\config\DataSeeder.class
 com\devtrack\app\project\ProjectService.class
 com\devtrack\app\user\UserRepository.class

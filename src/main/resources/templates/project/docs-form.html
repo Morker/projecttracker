@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${'Edit Documentation — ' + project.name + ' — DevTrack'}">Edit Documentation — DevTrack</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+
+<th:block th:replace="~{layout/base :: sidebar('projects')}"/>
+
+<div class="app-layout">
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+            <nav class="breadcrumb">
+                <a th:href="@{/projects}">Projects</a>
+                <span class="breadcrumb-sep">/</span>
+                <a th:href="@{/projects/{id}(id=${project.id})}" th:text="${project.name}">Project</a>
+                <span class="breadcrumb-sep">/</span>
+                <a th:href="@{/projects/{id}/docs(id=${project.id})}">Documentation</a>
+                <span class="breadcrumb-sep">/</span>
+                <span>Edit</span>
+            </nav>
+        </div>
+    </div>
+    <div class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('open')"></div>
+
+    <div class="content">
+        <h1>Edit Documentation</h1>
+        <p class="form-hint" style="margin-bottom: 1rem;">Write in Markdown. The template below has pre-defined sections to keep things organized.</p>
+
+        <form th:action="@{/projects/{id}/docs/save(id=${project.id})}" method="post" class="form-card">
+            <div class="field">
+                <label for="documentation">Documentation (Markdown)</label>
+                <textarea id="documentation" name="documentation" rows="28" th:text="${project.documentation}"></textarea>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/projects/{id}/docs(id=${project.id})}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Documentation</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function() {
+    var ta = document.getElementById('documentation');
+    if (!ta.value || ta.value.trim() === '') {
+        ta.value = [
+            '## Overview',
+            '',
+            'A brief description of what this project does and the problem it solves.',
+            '',
+            '## Features',
+            '',
+            '- **Feature One** — Short description of the first feature',
+            '- **Feature Two** — Short description of the second feature',
+            '- **Feature Three** — Short description of the third feature',
+            '- **Authentication** — Secure user login and registration',
+            '- **REST API** — Full CRUD endpoints for all resources',
+            '',
+            '## Tech Stack',
+            '',
+            '| Technology | Purpose |',
+            '|---|---|',
+            '| Spring Boot | Backend framework |',
+            '| PostgreSQL | Primary database |',
+            '| Thymeleaf | Server-side HTML rendering |',
+            '| Spring Security | Authentication & authorization |',
+            '| Flyway | Database migrations |',
+            '',
+            '## Installation',
+            '',
+            '```bash',
+            '# Clone the repo',
+            'git clone https://github.com/username/project.git',
+            '',
+            '# Navigate to the project directory',
+            'cd project',
+            '',
+            '# Install dependencies',
+            'mvn clean install',
+            '',
+            '# Set up the database',
+            'createdb myproject',
+            '',
+            '# Run the application',
+            'mvn spring-boot:run',
+            '```',
+            '',
+            '## Usage',
+            '',
+            'After starting the server, open your browser and go to `http://localhost:8080`.',
+            '',
+            '```bash',
+            '# Default login credentials',
+            'Username: admin',
+            'Password: admin123',
+            '```',
+            '',
+            '## API Reference',
+            '',
+            '| Endpoint | Method | Description |',
+            '|---|---|---|',
+            '| `/api/projects` | GET | List all projects |',
+            '| `/api/projects/{id}` | GET | Get a single project |',
+            '| `/api/projects` | POST | Create a new project |',
+            '| `/api/projects/{id}` | PUT | Update a project |',
+            '| `/api/projects/{id}` | DELETE | Delete a project |',
+            '| `/api/features` | GET | List all features |',
+            '',
+            '## Environment Variables',
+            '',
+            '| Variable | Description | Default |',
+            '|---|---|---|',
+            '| `DB_HOST` | Database hostname | `localhost` |',
+            '| `DB_PORT` | Database port | `5432` |',
+            '| `DB_NAME` | Database name | `myproject` |',
+            '| `DB_USER` | Database username | `postgres` |',
+            '| `APP_PORT` | Server port | `8080` |',
+            '',
+            '## Contributing',
+            '',
+            '1. Fork the project',
+            '2. Create your branch (`git checkout -b feature/amazing-feature`)',
+            '3. Commit your changes (`git commit -m "Add amazing feature"`)',
+            '4. Push to the branch (`git push origin feature/amazing-feature`)',
+            '5. Open a Pull Request',
+            '',
+            '## License',
+            '',
+            'Distributed under the MIT License. See `LICENSE` for more information.'
+        ].join('\n');
+    }
+})();
+</script>
+</body>
+</html>

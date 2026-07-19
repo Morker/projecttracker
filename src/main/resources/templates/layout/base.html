@@ -4,24 +4,37 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title th:text="${pageTitle != null ? pageTitle + ' — DevTrack' : 'DevTrack'}">DevTrack</title>
+    <title>DevTrack</title>
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
 </head>
 <body>
 
-<nav class="navbar">
-    <a th:href="@{/}" class="nav-brand">⬡ DevTrack</a>
-    <div class="nav-links">
-        <a th:href="@{/projects}" th:classappend="${#httpServletRequest.requestURI.contains('/projects')} ? 'active'">Projects</a>
-        <form th:action="@{/logout}" method="post" style="display:inline">
-            <button type="submit" class="btn-link" sec:authentication="name">Sign out</button>
+<!-- Sidebar fragment: reuse across all pages via th:replace -->
+<aside class="sidebar" id="sidebar" th:fragment="sidebar(activeMenu)">
+    <a th:href="@{/}" class="sidebar-brand">
+        <span class="sidebar-brand-icon">&#x2B21;</span>
+        <span class="sidebar-brand-text">DevTrack</span>
+    </a>
+    <nav class="sidebar-nav">
+        <a th:href="@{/}" class="sidebar-link" th:classappend="${activeMenu == 'dashboard'} ? 'active'">
+            <span class="sidebar-link-icon">&#8962;</span>
+            <span class="sidebar-link-text">Dashboard</span>
+        </a>
+        <a th:href="@{/projects}" class="sidebar-link" th:classappend="${activeMenu == 'projects'} ? 'active'">
+            <span class="sidebar-link-icon">&#9776;</span>
+            <span class="sidebar-link-text">Projects</span>
+        </a>
+        <div class="sidebar-spacer"></div>
+    </nav>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post" style="display:block">
+            <button type="submit" class="btn-link sidebar-link">
+                <span class="sidebar-link-icon">&#9211;</span>
+                <span class="sidebar-link-text">Sign out</span>
+            </button>
         </form>
     </div>
-</nav>
-
-<main class="container" th:fragment="content">
-    <!-- page content here -->
-</main>
+</aside>
 
 </body>
 </html>

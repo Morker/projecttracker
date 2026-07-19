@@ -7,63 +7,66 @@
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
 </head>
 <body>
-<nav class="navbar">
-    <a th:href="@{/}" class="nav-brand">⬡ DevTrack</a>
-    <div class="nav-links">
-        <a th:href="@{/projects}" class="active">Projects</a>
-        <form th:action="@{/logout}" method="post" style="display:inline">
-            <button type="submit" class="btn-link">Sign out</button>
-        </form>
-    </div>
-</nav>
 
-<main class="container">
-    <div class="page-header">
-        <h1>Projects</h1>
-        <a th:href="@{/projects/new}" class="btn btn-primary">+ New Project</a>
-    </div>
+<th:block th:replace="~{layout/base :: sidebar('projects')}"/>
 
-    <!-- Search + filter bar -->
-    <div class="filter-bar">
-        <form th:action="@{/projects}" method="get" class="search-form">
-            <input type="text" name="q" placeholder="Search projects or tech stack…"
-                   th:value="${q}" class="search-input"/>
-            <button type="submit" class="btn btn-secondary">Search</button>
-        </form>
-        <div class="status-filters">
-            <a th:href="@{/projects}" class="filter-chip" th:classappend="${activeStatus == null and q == null} ? 'active'">All</a>
-            <a th:each="s : ${statuses}"
-               th:href="@{/projects(status=${s.name()})}"
-               class="filter-chip"
-               th:classappend="${activeStatus == s.name()} ? 'active'"
-               th:text="${s.label}">Status</a>
+<div class="app-layout">
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+            <nav class="breadcrumb">
+                <span>Projects</span>
+            </nav>
         </div>
     </div>
+    <div class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('open')"></div>
 
-    <!-- Project grid -->
-    <div th:if="${#lists.isEmpty(projects)}" class="empty-state-large">
-        <p>No projects found.</p>
-        <a th:href="@{/projects/new}" class="btn btn-primary">Create one now</a>
-    </div>
+    <div class="content">
+        <div class="page-header">
+            <h1>Projects</h1>
+            <a th:href="@{/projects/new}" class="btn btn-primary">+ New Project</a>
+        </div>
 
-    <div class="project-grid" th:unless="${#lists.isEmpty(projects)}">
-        <div th:each="p : ${projects}" class="project-card">
-            <div class="card-top">
-                <span class="badge" th:classappend="'badge-' + ${p.status.name().toLowerCase()}"
-                      th:text="${p.status.label}">Status</span>
-                <span class="card-date" th:text="${#temporals.format(p.updatedAt, 'dd MMM yyyy')}">date</span>
+        <div class="filter-bar">
+            <form th:action="@{/projects}" method="get" class="search-form">
+                <input type="text" name="q" placeholder="Search projects or tech stack..."
+                       th:value="${q}" class="search-input"/>
+                <button type="submit" class="btn btn-secondary">Search</button>
+            </form>
+            <div class="status-filters">
+                <a th:href="@{/projects}" class="filter-chip" th:classappend="${activeStatus == null and q == null} ? 'active'">All</a>
+                <a th:each="s : ${statuses}"
+                   th:href="@{/projects(status=${s.name()})}"
+                   class="filter-chip"
+                   th:classappend="${activeStatus == s.name()} ? 'active'"
+                   th:text="${s.label}">Status</a>
             </div>
-            <h3><a th:href="@{/projects/{id}(id=${p.id})}" th:text="${p.name}">Project name</a></h3>
-            <p class="card-desc" th:text="${p.description != null ? #strings.abbreviate(p.description, 100) : ''}">desc</p>
-            <div class="card-tags">
-                <span th:each="t : ${p.techStackList}" class="tag" th:text="${t}">tag</span>
-            </div>
-            <div class="card-footer">
-                <a th:href="@{/projects/{id}(id=${p.id})}" class="link-small">View →</a>
-                <a th:href="@{/projects/{id}/edit(id=${p.id})}" class="link-small">Edit</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(projects)}" class="empty-state-large">
+            <p>No projects found.</p>
+            <a th:href="@{/projects/new}" class="btn btn-primary">Create one now</a>
+        </div>
+
+        <div class="project-grid" th:unless="${#lists.isEmpty(projects)}">
+            <div th:each="p : ${projects}" class="project-card">
+                <div class="card-top">
+                    <span class="badge" th:classappend="'badge-' + ${p.status.name().toLowerCase()}"
+                          th:text="${p.status.label}">Status</span>
+                    <span class="card-date" th:text="${#temporals.format(p.updatedAt, 'dd MMM yyyy')}">date</span>
+                </div>
+                <h3><a th:href="@{/projects/{id}(id=${p.id})}" th:text="${p.name}">Project name</a></h3>
+                <p class="card-desc" th:text="${p.description != null ? #strings.abbreviate(p.description, 100) : ''}">desc</p>
+                <div class="card-tags">
+                    <span th:each="t : ${p.techStackList}" class="tag" th:text="${t}">tag</span>
+                </div>
+                <div class="card-footer">
+                    <a th:href="@{/projects/{id}(id=${p.id})}" class="link-small">View &rarr;</a>
+                    <a th:href="@{/projects/{id}/edit(id=${p.id})}" class="link-small">Edit</a>
+                </div>
             </div>
         </div>
     </div>
-</main>
+</div>
 </body>
 </html>

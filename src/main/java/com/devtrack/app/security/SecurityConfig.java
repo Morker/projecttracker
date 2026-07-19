@@ -21,7 +21,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/favicon.ico").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/favicon.ico", "/api/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -32,7 +32,8 @@ public class SecurityConfig {
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
-            );
+            )
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
         return http.build();
     }
 
