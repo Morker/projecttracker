@@ -356,6 +356,11 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    text-decoration: none;
+    transition: border-color 0.15s;
+}
+.stat-card:hover {
+    border-color: var(--accent);
 }
 
 .stat-num {
@@ -418,7 +423,18 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 .log-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
 .log-item { display: grid; grid-template-columns: 52px 1fr auto; gap: 0.5rem; align-items: start; }
 .log-date { font-size: 0.75rem; color: var(--text-muted); font-family: var(--mono); padding-top: 1px; }
-.log-note { font-size: 0.875rem; line-height: 1.5; color: var(--text); }
+.log-note {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text);
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.log-note:hover { color: var(--accent); }
 .log-project { font-size: 0.75rem; color: var(--accent); white-space: nowrap; }
 
 /* ============================
@@ -732,7 +748,6 @@ select option { background: var(--surface); }
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 2rem;
-    max-width: 820px;
     line-height: 1.75;
     color: var(--text);
 }

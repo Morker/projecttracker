@@ -29,22 +29,22 @@
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card">
+            <a th:href="@{/projects}" class="stat-card">
                 <span class="stat-num" th:text="${stats.total}">0</span>
                 <span class="stat-label">Total Projects</span>
-            </div>
-            <div class="stat-card accent-blue">
+            </a>
+            <a th:href="@{/projects(status='IN_PROGRESS')}" class="stat-card accent-blue">
                 <span class="stat-num" th:text="${stats.inProgress}">0</span>
                 <span class="stat-label">In Progress</span>
-            </div>
-            <div class="stat-card accent-green">
+            </a>
+            <a th:href="@{/projects(status='DONE')}" class="stat-card accent-green">
                 <span class="stat-num" th:text="${stats.done}">0</span>
                 <span class="stat-label">Completed</span>
-            </div>
-            <div class="stat-card accent-yellow">
+            </a>
+            <a th:href="@{/projects(status='IDEA')}" class="stat-card accent-yellow">
                 <span class="stat-num" th:text="${stats.ideas}">0</span>
                 <span class="stat-label">Ideas</span>
-            </div>
+            </a>
         </div>
 
         <div class="two-col">
@@ -80,7 +80,8 @@
                 <ul class="log-list" th:unless="${#lists.isEmpty(recentLogs)}">
                     <li th:each="log : ${recentLogs}" class="log-item">
                         <span class="log-date" th:text="${#temporals.format(log.entryDate, 'dd MMM')}">01 Jan</span>
-                        <span class="log-note" th:text="${log.note}">note</span>
+                        <a th:href="@{/projects/{id}(id=${log.project.id})}"
+                           class="log-note" th:text="${log.note}" th:title="${log.note}">note</a>
                         <a th:href="@{/projects/{id}(id=${log.project.id})}"
                            class="log-project" th:text="${log.project.name}">project</a>
                     </li>
